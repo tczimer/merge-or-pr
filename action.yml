@@ -35,5 +35,5 @@ inputs:
     description: 'Github username of user to be reviewer of newly created pr. Skip for no reviewer'
     required: false
 runs:
-  using: 'node12'
+  using: 'node14'
   main: 'dist/index.js'
