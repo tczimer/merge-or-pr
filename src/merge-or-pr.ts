@@ -1,4 +1,4 @@
-import { setOutput, debug, warning } from "@actions/core";
+import { debug, setOutput, warning } from "@actions/core";
 import { getOctokit } from "@actions/github";
 import { GitHub } from "@actions/github/lib/utils";
 import { Config } from "./types";
@@ -20,7 +20,7 @@ async function tryMerge(
   }: Config
 ): Promise<boolean> {
   try {
-    await octokit.repos.merge({
+    await octokit.rest.repos.merge({
       repo,
       owner,
       base,
@@ -45,13 +45,13 @@ async function tryMerge(
 async function createPr(octokit: InstanceType<typeof GitHub>, config: Config) {
   const branchRef = `refs/heads/${config.prConfig.mergeBranchName}`;
   const prConfig = config.prConfig;
-  await octokit.git.createRef({
+  await octokit.rest.git.createRef({
     repo: config.repoName,
     owner: config.repoOwner,
     sha: config.headToMerge,
     ref: branchRef,
   });
-  const pr = await octokit.pulls.create({
+  const pr = await octokit.rest.pulls.create({
     repo: config.repoName,
     owner: config.repoOwner,
     head: branchRef,
@@ -63,7 +63,7 @@ async function createPr(octokit: InstanceType<typeof GitHub>, config: Config) {
   });
   const assignedUser = prConfig.assignedUser;
   if (assignedUser) {
-    await octokit.issues.addAssignees({
+    await octokit.rest.issues.addAssignees({
       repo: config.repoName,
       owner: config.repoOwner,
       issue_number: pr.data.number,
@@ -72,7 +72,7 @@ async function createPr(octokit: InstanceType<typeof GitHub>, config: Config) {
   }
   const reviewer = prConfig.reviewer;
   if (reviewer) {
-    await octokit.pulls.requestReviewers({
+    await octokit.rest.pulls.requestReviewers({
       repo: config.repoName,
       owner: config.repoOwner,
       pull_number: pr.data.number,
